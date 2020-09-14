@@ -1,0 +1,11 @@
+{% extends "encyclopedia/layout.html" %}
+
+{% block body %}
+    {{ content|safe }}
+
+    <form action="{{ edit }}">
+        <div class="form-group" style="display: inline-block;"> 
+            <input class="btn btn-primary" type="submit" value="Edit">
+        </div>
+    </form>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "encyclopedia/layout.html" %}
+
+{% block body %}
+    <h3>Sorry, this page doesn't exist</h3>
+    <h1>Help us create it !</h1>
+
+    <form action="{% url 'new'%}">
+        <div class="form-group" style="display: inline-block;"> 
+            <input class="btn btn-primary" type="submit" value="Create a new page">
+        </div>
+    </form>
+{% endblock %}
