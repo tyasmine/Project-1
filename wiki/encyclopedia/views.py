@@ -27,7 +27,7 @@ def wiki(request, name):
         entry = markdown2.markdown(util.get_entry(name))
         return render(request, "encyclopedia/title.html", {
             "content": entry,
-            "edit": f"edit/{name}"
+            "edit": f"/edit/{name}"
         })
     else:
         return render(request, "encyclopedia/error.html")
@@ -108,13 +108,17 @@ def edit(request, name):
 
         form = NewPageForm(request.POST)
 
-        title = form.cleaned_data["title"]
-        content = form.cleaned_data["content"]
-
         if form.is_valid():
-            f = open(f"entries/{title}.md","w")
+
+            # Clean data
+            title = form.cleaned_data["title"]
+            content = form.cleaned_data["content"]
+
+            # Rewrite the modified data
+            f = open(f"entries/{name}.md","w")
             f.write(content)
             f.close()
+            
         else:
             return render(request, "encyclopedia/new.html", {
                 "title": "Create a new page",
@@ -124,13 +128,13 @@ def edit(request, name):
 
     form = NewPageForm()
     form.fields["title"].initial = name
-    form.fields["title"].initial = markdown2.markdown(util.get_entry(name))
-    form.fields["title"].widget = forms.HiddenInput() 
+    form.fields["content"].initial = util.get_entry(name)
     return render("encyclopedia/new.html", {
         "title": "Edit this page",
         "form": form,
         "alert": False
     })
+
 
 def random(request):
     return HttpResponseRedirect(reverse("wiki", kwargs={'name': choice(util.list_entries())}))
