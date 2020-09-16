@@ -10,8 +10,8 @@ from . import markdown2
 
 
 class NewPageForm(forms.Form):
-    title = forms.CharField(label="title", widget=forms.TextInput)
-    content = forms.CharField(label="content", widget=forms.Textarea)
+    title = forms.CharField(label="title", widget=forms.TextInput(attrs={'class' : 'form-control col-md-8 col-lg-8'}))
+    content = forms.CharField(label="content", widget=forms.Textarea(attrs={'class' : 'form-control col-md-8 col-lg-8', 'rows' : 10}))
 
 # Default page
 def index(request):
@@ -96,12 +96,12 @@ def new(request):
                 "alert": True
             })
 
-    if request.method == "GET":
-        return render(request, "encyclopedia/new.html", {
-            "title": "Create a new page",
-            "form": NewPageForm(),
-            "alert": False
-        })
+    
+    return render(request, "encyclopedia/new.html", {
+        "title": "Create a new page",
+        "form": NewPageForm(),
+        "alert": False
+    })
 
 def edit(request, name):
     if request.method == "POST":
