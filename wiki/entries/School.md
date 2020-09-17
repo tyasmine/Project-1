@@ -1,0 +1,1 @@
+School is a terrible place.

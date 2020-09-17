@@ -12,6 +12,7 @@ from . import markdown2
 class NewPageForm(forms.Form):
     title = forms.CharField(label="title", widget=forms.TextInput(attrs={'class' : 'form-control col-md-8 col-lg-8'}))
     content = forms.CharField(label="content", widget=forms.Textarea(attrs={'class' : 'form-control col-md-8 col-lg-8', 'rows' : 10}))
+    edit = forms.BooleanField(widget=forms.HiddenInput(), initial=False, required=False)
 
 # Default page
 def index(request):
@@ -27,6 +28,7 @@ def wiki(request, name):
         entry = markdown2.markdown(util.get_entry(name))
         return render(request, "encyclopedia/title.html", {
             "content": entry,
+            "title": name,
             "edit": f"/edit/{name}"
         })
     else:
@@ -57,7 +59,7 @@ def search(request):
             return render(request, "encyclopedia/index.html", {
                 "entries": matches,
                 "title": "Did you mean..."
-                })
+            })
 
 def new(request):
 
@@ -70,22 +72,22 @@ def new(request):
         if form.is_valid():
 
             # Isolate the title and the content from the 'cleaned' version of form data
-            title = form.cleaned_data.get["title"]
-            content = form.cleaned_data.get["content"]
+            title = form.cleaned_data["title"]
+            content = form.cleaned_data["content"]
 
-            # Isolate the title and the content from the 'cleaned' version of form data
-            if title.casefold() in util.list_entries():
-                return HttpResponse("ERROR THIS PAGE ALREADY EXISTS")
+            if form.fields["edit"] == False:
+
+                # Isolate the title and the content from the 'cleaned' version of form data
+                if title.casefold() in util.list_entries():
+                    return render(request, "encyclopedia/error2.html", {
+                        'link' : f"wiki/{title}"
+                    })
             
-            else:
+            # Save entry
+            util.save_entry(title,content)
 
-                # Create a file
-                f = open(f"entries/{title}.md","w+")
-                f.write(content)
-                f.close() 
-
-                # Redirect user to list of pages
-                return HttpResponseRedirect(reverse("encyclopedia:index"))
+            # Redirect user to list of pages
+            return HttpResponseRedirect(reverse("wiki", kwargs={'name': title}))
 
         else:
 
@@ -104,36 +106,16 @@ def new(request):
     })
 
 def edit(request, name):
-    if request.method == "POST":
-
-        form = NewPageForm(request.POST)
-
-        if form.is_valid():
-
-            # Clean data
-            title = form.cleaned_data["title"]
-            content = form.cleaned_data["content"]
-
-            # Rewrite the modified data
-            f = open(f"entries/{name}.md","w")
-            f.write(content)
-            f.close()
-            
-        else:
-            return render(request, "encyclopedia/new.html", {
-                "title": "Create a new page",
-                "form": form,
-                "alert": True
-            })
-
-    form = NewPageForm()
-    form.fields["title"].initial = name
-    form.fields["content"].initial = util.get_entry(name)
-    return render("encyclopedia/new.html", {
-        "title": "Edit this page",
-        "form": form,
-        "alert": False
-    })
+    if request.method == "GET":
+        form = NewPageForm()
+        form.fields["title"].initial = name
+        form.fields["content"].initial = util.get_entry(name)
+        form.fields["edit"].initial = True
+        return render(request, "encyclopedia/new.html", {
+            "title": "Edit this page",
+            "form": form,
+            "alert": False
+        })
 
 
 def random(request):
