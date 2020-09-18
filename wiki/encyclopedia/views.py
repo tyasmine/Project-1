@@ -24,7 +24,7 @@ def index(request):
 
 # Pages' Urls
 def wiki(request, name):
-    if name.casefold() in util.list_entries():
+    if name.capitalize() in util.list_entries():
         entry = markdown2.markdown(util.get_entry(name))
         return render(request, "encyclopedia/title.html", {
             "content": entry,
@@ -49,7 +49,7 @@ def search(request):
     else:
         matches = []
         for entry in util.list_entries():
-            if form.casefold() in entry:
+            if form.capitalize() in entry:
                 matches.append(entry)
 
         # If no match:
@@ -78,7 +78,7 @@ def new(request):
             if form.fields["edit"] == False:
 
                 # Isolate the title and the content from the 'cleaned' version of form data
-                if title.casefold() in util.list_entries():
+                if title.capitalize() in util.list_entries():
                     return render(request, "encyclopedia/error2.html", {
                         'link' : f"wiki/{title}"
                     })

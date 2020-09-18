@@ -1,0 +1,1 @@
+Japanese is a cool language
